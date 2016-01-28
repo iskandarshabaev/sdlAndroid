@@ -19,9 +19,6 @@ and may not be redistributed without written permission.*/
 
 #define APPNAME "SDL"
 
-//Screen dimension constants
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 752;
 
 //Scene textures
 
@@ -60,7 +57,7 @@ void handleMouseEvents(SDL_Event& event);
 
 void handleTouchEvents(SDL_Event& event);
 
-void wmain();
+void wmain(SDL_Renderer *ren, SDL_Rect* camera);
 
 //The window we'll be rendering to
 SDL_Window *gWindow = NULL;
@@ -104,10 +101,11 @@ bool init() {
     if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
         printf("Warning: Linear texture filtering not enabled!");
     }
-
+/*
     //Create window
     gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+                               */
     if (gWindow == NULL) {
         printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
         success = false;
@@ -204,7 +202,7 @@ void close() {
     SDL_Quit();
 }
 
-void wmain(SDL_Renderer *ren) {
+void wmain(SDL_Renderer *ren, SDL_DisplayMode current) {
 
     gRenderer = ren;
 
@@ -239,7 +237,7 @@ void wmain(SDL_Renderer *ren) {
 
 
             //Level camera
-            SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_Rect camera = {0, 0, current.w, current.h};
 
             //countT(camera);
 
@@ -260,6 +258,7 @@ void wmain(SDL_Renderer *ren) {
 
 
                     int current = SDL_GetTicks();
+
                     countT(camera);
 
                 }
@@ -337,7 +336,7 @@ bool mouseClickTriger = false;
 int mouseClickX = 0;
 int mouseClickY = 0;
 
-double mouseScrollVelocity = 0.05;
+double mouseScrollVelocity = 0.015;
 
 void handleMouseEvents(SDL_Event& event)
 {
@@ -483,8 +482,10 @@ void countT(SDL_Rect camera)
 
             if (textureCache ->find(tileName) == (textureCache -> end())) {
                 LTexture *tileTexture = new LTexture();
+
                 tileTexture->loadFromFile(gRenderer,
                                           string("") + tileName + ".png");
+
 
                 if (textureCache != NULL) {
                     tile->setTileTexture(tileTexture);
