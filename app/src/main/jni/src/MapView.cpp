@@ -3,15 +3,16 @@ and may not be redistributed without written permission.*/
 
 //Using SDL, SDL_image, standard IO, strings, and file streams
 #include <MapView.h>
+
 #include <string.h>
 #include <SDL.h>
 #include <SDL_main.h>
 #include <SDL_image.h>
 #include <stdio.h>
 //#include <fstream.h>
-#include "LTexture.h"
+#include <LTexture.h>
 #include <EventHandler.h>
-#include "TTile.h"
+#include <TTile.h>
 #include <vector>
 #include <map>
 
@@ -25,59 +26,35 @@ and may not be redistributed without written permission.*/
 using namespace std;
 
 
-std::map<std::string, LTexture *> *textureCache = new std::map<std::string, LTexture *>;
 
-std::vector<TTile *> *mylist = new std::vector<TTile *>;
-std::vector<TTile *> *unusedTiles = new std::vector<TTile *>;
+
+
+MapView::MapView(SDL_Window *win){
+
+    gWindow = win;
+    gRenderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    camera = {0, 0, current.w, current.h};
+    upperLeft.x = 0;
+    upperLeft.y = 0;
+    lowerRight.x = 1024;
+    lowerRight.y = 1024;
+
+    textureCache = new map<string, LTexture *>;
+    mylist = new vector<TTile *>;
+    unusedTiles = new vector<TTile *>;
+
+
+}
+
+MapView::~MapView(){
+
+}
 
 bool MapView::init() {
     //Initialization flag
     bool success = true;
-    //LOGD("init start");
 
-
-    if (SDL_Init(SDL_INIT_EVERYTHING) == -1){
-        //LOGD("init start failed");
-        //LOGD("SDL_Init: %s\n", SDL_GetError());
-    }
-
-
-    //LOGD("init start true");
-    //Set texture filtering to linear
-    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-        printf("Warning: Linear texture filtering not enabled!");
-    }
-    if (gWindow == NULL) {
-        printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
-        success = false;
-    }
-    else {
-        //Create renderer for window
-        gRenderer = SDL_CreateRenderer(gWindow, -1,
-                                       SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        if (gRenderer == NULL) {
-            printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-            success = false;
-        }
-        else {
-            //Initialize renderer color
-            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-            //Initialize PNG loading
-            int imgFlags = IMG_INIT_PNG;
-            if (!(IMG_Init(imgFlags) & imgFlags)) {
-                printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-                success = false;
-            }
-        }
-    }
-
-
-    upperLeft.x = 0;
-    upperLeft.y = 0;
-
-    lowerRight.x = 1024;
-    lowerRight.y = 1024;
 
     return success;
 }
@@ -110,7 +87,7 @@ void MapView::close() {
 
 
 
-void MapView::wmain(SDL_Renderer *ren, SDL_DisplayMode current) {
+void MapView::wmain() {
 
     gRenderer = ren;
 
@@ -121,15 +98,17 @@ void MapView::wmain(SDL_Renderer *ren, SDL_DisplayMode current) {
     lowerRight.y = 1024;
 
     EventHandler* eventHandler = new EventHandler(current);
+
     if (!loadMedia()) {
         __android_log_print(ANDROID_LOG_INFO, APPNAME, "Failed to load media %s\n", SDL_GetError());
     }else {
         bool quit = false;
-        SDL_Rect camera = {0, 0, current.w, current.h};
+
         while (!quit) {
 
             int delay = SDL_GetTicks();
             eventHandler->handleEvents(offsetX, offsetY);
+
             countT(camera);
 
             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -152,10 +131,9 @@ SDL_Point* MapView::pixelXYToTileXY(int pixelX, int pixelY, SDL_Point *reuse)
     return reuse;
 }
 
-void MapView::countT(SDL_Rect camera)
+void MapView::countT()
 {
     correctOffset();
-
     while(mylist ->size() > 50){
         delete mylist->at(0);
         mylist->erase(mylist->begin() +0);

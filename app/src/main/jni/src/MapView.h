@@ -4,9 +4,9 @@
 #include <SDL_image.h>
 #include <stdio.h>
 //#include <fstream.h>
-#include "LTexture.h"
+#include <LTexture.h>
 #include <EventHandler.h>
-#include "TTile.h"
+#include <TTile.h>
 #include <vector>
 #include <map>
 
@@ -47,7 +47,7 @@ public:
     void correctOffset();
 
 
-    void wmain(SDL_Renderer *ren, SDL_DisplayMode current);
+    void wmain(SDL_Window *win);
 
     SDL_Window *gWindow = NULL;
 
@@ -69,6 +69,7 @@ public:
 
     SDL_Point upperLeft;
     SDL_Point lowerRight;
+    SDL_Rect camera;
 
 private:
 

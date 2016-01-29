@@ -1,6 +1,9 @@
 #include <SDL_image.h>
 #include "LTexture.h"
 
+#ifndef __TTile__
+#define __TTile__
+
 class TTile
 {
 public:
@@ -37,3 +40,4 @@ private:
 	int mTileWidth = 256, mTileHeight = 256;
 };
 
+#endif
