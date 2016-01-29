@@ -1,7 +1,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <android/log.h>
-#include <MapView.cpp>
+#include <MapView.h>
 
 #define APPNAME "SDL"
 
